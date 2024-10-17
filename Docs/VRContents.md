@@ -10,6 +10,8 @@
   - 물체를 원거리에서 선택해서 당겨옴
   - 유저의 현재 위치와 물건의 위치를 비교해서 정규화된 방향 도출
   - 일정 힘 이상으로 당기면 물체가 플레이어 쪽으로 당겨져 눈앞까지 옴
+    - 우선 그랩으로 잡고 트리거를 했을 때 날아오게 적용
+    - 포물선으로 날아오게 함
   - 날아오는 도중 충돌체(trigger화?) 의 크기를 늘려 좀 더 쉽게 잡을 수 있게 함 
 - **인벤토리**
   - 손목 부분에 공간을 두어 인벤토리를 구현
@@ -24,3 +26,7 @@
 - 
 - VR 손 모델 에셋 : [VR Hand Models Mega Pack](https://assetstore.unity.com/packages/3d/characters/humanoids/vr-hand-models-mega-pack-handy-hands-left-right-200607)
 - 공 모델 에셋 : [Free Sport Balls]( https://assetstore.unity.com/packages/3d/props/free-sport-balls-293937)
+
+
+### memo
+애니메이트 모델로 넣어줌
