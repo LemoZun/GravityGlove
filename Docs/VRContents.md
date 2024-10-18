@@ -30,3 +30,17 @@
 
 ### memo
 애니메이트 모델로 넣어줌
+ray로 잡았을때는 안움직이고 Direct Interator로 잡았을 때에만 움직이도록 해야함
+
+focus - 조준당했을때
+hover - 상호작용 범위에 들어왔을때
+select - grab 같은 컨트롤러로 상호작용을 시작할 때 
+Track Position과 Track Rotation, Throw on Detach를 꺼주면 grab 했을때 움직이지 않도록 해 줄 수 있음
+
+물체를 당기는 트리거
+ray 로 선택
+throw 참조 어려움
+grab을 한 ray 위치와 그랩
+거 속 시
+그랩버튼을 누르고 있어도 당기는 동작은 시행됨
+속도가 아닌 일정 각도 이상이 되면 당겨지게 동작?
