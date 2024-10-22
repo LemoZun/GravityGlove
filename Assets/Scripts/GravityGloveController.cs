@@ -9,6 +9,50 @@ public class GravityGloveController : MonoBehaviour
     //XRController 
     [SerializeField] ActionBasedController controller;
     [SerializeField] Animator animator;
+    public Animator Animator
+    {
+        get
+        {
+            if (animator != null)
+                return animator;
+            if (controller.model == null)
+                return null;
+
+            animator = controller.model.GetComponent<Animator>();
+            return animator;
+        }
+    }
+
+    [SerializeField] XRDirectInteractor directInteractor;
+    private Transform customAttachPoint;
+    public Transform AttachPoint
+    {
+        get
+        {
+            if(controller.model != null)
+            {
+                Debug.Log("컨트롤러의 모델 없음");
+                return null;
+            }
+
+            if (customAttachPoint == null)
+            {
+                customAttachPoint = controller.model.Find("AttachPoint");
+
+                if (customAttachPoint != null)
+                {
+                    directInteractor.attachTransform = customAttachPoint;
+                    return directInteractor.attachTransform;
+                }
+                else
+                {
+                    Debug.Log("customAttachPoint가 null");
+                }
+            }
+            return customAttachPoint;
+        }
+    }
+
     private XRGrabInteractable selectedObject; // 레이로 잡은 물체
     private Rigidbody selectedObjectRb;
     private bool isSelecting = false;
@@ -23,19 +67,7 @@ public class GravityGloveController : MonoBehaviour
 
     Coroutine checkingFlickRoutine;
 
-    public Animator controllerAnimator
-    {
-        get
-        {
-            if(animator != null)
-                return animator;
-            if (controller.model == null)
-                return null;
 
-            animator = controller.model.GetComponent<Animator>();
-            return animator;
-        }
-    }
     private void Start()
     {
         //animator = controller.model.GetComponent<Animator>();
@@ -43,11 +75,12 @@ public class GravityGloveController : MonoBehaviour
         //    Debug.LogError("애니메이터 참조 오류");
 
         //playerTransform = transform;
+        //SetAttachPoint();
     }
 
     private void OnEnable()
     {
-        //XRInteractionManager
+        //SetAttachPoint();
     }
 
     private void Update()
@@ -55,9 +88,34 @@ public class GravityGloveController : MonoBehaviour
 
     }
 
+    public void SetAttachPoint()
+    {
+        if (controller.model == null)
+        {
+            Debug.Log("컨트롤러의 모델 없음");
+            return;
+        }
+
+        if (customAttachPoint == null)
+        {
+            customAttachPoint = controller.model.Find("AttachPoint");
+
+            if (customAttachPoint != null)
+            {
+                directInteractor.attachTransform = customAttachPoint;
+            }
+            else
+            {
+                Debug.Log("customAttachPoint가 null");
+            }
+        }
+        return;
+    }
+
     public void SelectStarted(SelectEnterEventArgs args)
     {
         Debug.Log("선택 시작");
+        PlaySelectAnimation();
         selectedObject = args.interactableObject as XRGrabInteractable;
         if (selectedObject == null)
         {
@@ -69,9 +127,6 @@ public class GravityGloveController : MonoBehaviour
         if (selectedObjectRb == null)
             Debug.Log("오브젝트의 리지드바디 없음");
         isSelecting = true;
-        //PlaySelectAnimation();
-
-        //originalZAngle = controller.transform.rotation.eulerAngles.z;
         originalZAngle = controller.transform.localEulerAngles.z;
         StartChekingFlickRoutine();
     }
@@ -79,6 +134,7 @@ public class GravityGloveController : MonoBehaviour
     public void SelectEnded()
     {
         Debug.Log("선택 끝");
+        PlayUnSelectAnimation();
         //selectedObject = null;     
         //selectedObjectRb = null;
 
@@ -168,17 +224,22 @@ public class GravityGloveController : MonoBehaviour
 
     public void PlaySelectAnimation()
     {
-        
+        Animator.SetTrigger("Select");
+    }
+
+    public void PlayUnSelectAnimation()
+    {
+        Animator.SetTrigger("UnSelect");
     }
 
     public void PlayGrabAnimation()
     {
-        controllerAnimator.SetTrigger("Grab");
+        Animator.SetTrigger("Grab");
     }
 
     public void PlayUnGrabAnimation()
     {
-        controllerAnimator.SetTrigger("UnGrab");
+        Animator.SetTrigger("UnGrab");
     }
 
 
