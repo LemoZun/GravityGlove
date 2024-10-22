@@ -9,6 +9,8 @@ public class GravityGloveController : MonoBehaviour
     //XRController 
     [SerializeField] ActionBasedController controller;
     [SerializeField] Animator animator;
+    private AudioSource audioSource;
+    [SerializeField] AudioClip pullingSound;
     public Animator Animator
     {
         get
@@ -57,25 +59,20 @@ public class GravityGloveController : MonoBehaviour
     private Rigidbody selectedObjectRb;
     private bool isSelecting = false;
     private bool isPulled = false;
-
-    //[SerializeField] Transform playerTransform;
     [SerializeField] float pullForce;
-    //[SerializeField] float pullableRayDistance;
-
     private float originalZAngle; // 컨트롤러의 회전값을 받아와야함
     [SerializeField] float thresholdAngleVelocity; // 임시값
-
     Coroutine checkingFlickRoutine;
 
 
     private void Start()
     {
-        //animator = controller.model.GetComponent<Animator>();
-        //if (animator == null)
-        //    Debug.LogError("애니메이터 참조 오류");
-
-        //playerTransform = transform;
-        //SetAttachPoint();
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            //audioSource = gameObject.AddComponent<AudioSource>();
+            Debug.LogError("오디오 소스 없음");
+        }
     }
 
     private void OnEnable()
@@ -198,6 +195,7 @@ public class GravityGloveController : MonoBehaviour
     public void PullObject()
     {
         Debug.Log("오브젝트 당기기 시작");
+        PlayPullingSound();
         if (selectedObject != null && !isPulled)
         {
 
@@ -221,6 +219,14 @@ public class GravityGloveController : MonoBehaviour
         }
     }
 
+    private void PlayPullingSound()
+    {
+        if(audioSource != null && pullingSound != null)
+        {
+            audioSource.clip = pullingSound;
+            audioSource.Play();
+        }
+    }
 
     public void PlaySelectAnimation()
     {
