@@ -51,7 +51,7 @@ public class TransformController : MonoBehaviour
         isRaySelected=false;
     }
 
-    public void ControlTransform()
+    private void ControlTransform()
     {
         // ray로 잡혔을때는 현재 위치를 고정
         transform.position = originalTransform.position;

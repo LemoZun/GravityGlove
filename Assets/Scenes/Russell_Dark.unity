@@ -701,7 +701,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 638732471}
         m_TargetAssemblyTypeName: DirectGrabController, Assembly-CSharp
-        m_MethodName: TrunOnTrack
+        m_MethodName: TurnOnTrack
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -716,7 +716,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 638732471}
         m_TargetAssemblyTypeName: DirectGrabController, Assembly-CSharp
-        m_MethodName: TrunOffTrack
+        m_MethodName: TurnOffTrack
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

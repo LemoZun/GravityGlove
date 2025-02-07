@@ -6,12 +6,18 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class GravityGloveController : MonoBehaviour
 {
+    private static readonly int Select = Animator.StringToHash("Select");
+    private static readonly int UnSelect = Animator.StringToHash("UnSelect");
+    private static readonly int Grab = Animator.StringToHash("Grab");
+    private static readonly int UnGrab = Animator.StringToHash("UnGrab");
+
     //XRController 
-    [SerializeField] ActionBasedController controller;
-    [SerializeField] Animator animator;
+    [SerializeField] private ActionBasedController controller;
+    [SerializeField] private Animator animator;
     private AudioSource audioSource;
-    [SerializeField] AudioClip pullingSound;
-    public Animator Animator
+    [SerializeField] private AudioClip pullingSound;
+
+    private Animator handAnimator
     {
         get
         {
@@ -25,9 +31,9 @@ public class GravityGloveController : MonoBehaviour
         }
     }
 
-    [SerializeField] XRDirectInteractor directInteractor;
+    [SerializeField] private XRDirectInteractor directInteractor;
     private Transform customAttachPoint;
-    public Transform AttachPoint
+    public Transform attachPoint
     {
         get
         {
@@ -59,10 +65,10 @@ public class GravityGloveController : MonoBehaviour
     private Rigidbody selectedObjectRb;
     private bool isSelecting = false;
     private bool isPulled = false;
-    [SerializeField] float pullForce;
+    [SerializeField] private float pullForce;
     private float originalZAngle; // 컨트롤러의 회전값을 받아와야함
-    [SerializeField] float thresholdAngleVelocity; // 임시값
-    Coroutine checkingFlickRoutine;
+    [SerializeField] private float thresholdAngleVelocity; // 임시값
+    private Coroutine checkingFlickRoutine;
 
 
     private void Start()
@@ -93,18 +99,17 @@ public class GravityGloveController : MonoBehaviour
             return;
         }
 
-        if (customAttachPoint == null)
-        {
-            customAttachPoint = controller.model.Find("AttachPoint");
+        if (customAttachPoint != null) 
+            return;
+        customAttachPoint = controller.model.Find("AttachPoint");
 
-            if (customAttachPoint != null)
-            {
-                directInteractor.attachTransform = customAttachPoint;
-            }
-            else
-            {
-                Debug.Log("customAttachPoint가 null");
-            }
+        if (customAttachPoint != null)
+        {
+            directInteractor.attachTransform = customAttachPoint;
+        }
+        else
+        {
+            Debug.Log("customAttachPoint가 null");
         }
         return;
     }
@@ -144,34 +149,29 @@ public class GravityGloveController : MonoBehaviour
 
     private void StartChekingFlickRoutine()
     {
-        if (checkingFlickRoutine == null)
-            checkingFlickRoutine = StartCoroutine(CheckingFlickRoutine());
+        checkingFlickRoutine ??= StartCoroutine(CheckingFlickRoutine());
     }
 
     private void StopChekingFlickRoutine()
     {
-        if (checkingFlickRoutine != null)
-        {
-            StopCoroutine(checkingFlickRoutine);
-            checkingFlickRoutine = null;
-        }
+        if (checkingFlickRoutine == null) 
+            return;
+        StopCoroutine(checkingFlickRoutine);
+        checkingFlickRoutine = null;
 
     }
 
-    IEnumerator CheckingFlickRoutine()
+    private IEnumerator CheckingFlickRoutine()
     {
         WaitForSeconds delay = new WaitForSeconds(0.1f);
         float unitSecond = 0.5f;
-        float curZAngle;
-        float deltaAngle;
-        float angularVelocity;
 
         while (isSelecting && !isPulled)
         {
             //float curZAngle = controller.transform.rotation.eulerAngles.z;
-            curZAngle = controller.transform.localEulerAngles.z;
-            deltaAngle = Mathf.DeltaAngle(originalZAngle, curZAngle);
-            angularVelocity = deltaAngle / unitSecond; //임시값
+            var curZAngle = controller.transform.localEulerAngles.z;
+            var deltaAngle = Mathf.DeltaAngle(originalZAngle, curZAngle);
+            var angularVelocity = deltaAngle / unitSecond;
 
             if (angularVelocity >= thresholdAngleVelocity)
             {
@@ -181,18 +181,17 @@ public class GravityGloveController : MonoBehaviour
                 yield break;
 
             }
-            else
-            {
-                Debug.Log("각속도 부족");
-                // 지나치게 빨리 originalAngle을 업데이트해서 안당겨짐
-                originalZAngle = curZAngle;
-            }
+
+            Debug.Log("각속도 부족");
+            // 지나치게 빨리 originalAngle을 업데이트해서 안당겨짐
+            originalZAngle = curZAngle;
 
             yield return delay;
         }
         
     }
-    public void PullObject()
+
+    private void PullObject()
     {
         Debug.Log("오브젝트 당기기 시작");
         PlayPullingSound();
@@ -221,31 +220,30 @@ public class GravityGloveController : MonoBehaviour
 
     private void PlayPullingSound()
     {
-        if(audioSource != null && pullingSound != null)
-        {
-            audioSource.clip = pullingSound;
-            audioSource.Play();
-        }
+        if (audioSource == null || pullingSound == null) 
+            return;
+        audioSource.clip = pullingSound;
+        audioSource.Play();
     }
 
-    public void PlaySelectAnimation()
+    private void PlaySelectAnimation()
     {
-        Animator.SetTrigger("Select");
+        handAnimator.SetTrigger(Select);
     }
 
-    public void PlayUnSelectAnimation()
+    private void PlayUnSelectAnimation()
     {
-        Animator.SetTrigger("UnSelect");
+        handAnimator.SetTrigger(UnSelect);
     }
 
     public void PlayGrabAnimation()
     {
-        Animator.SetTrigger("Grab");
+        handAnimator.SetTrigger(Grab);
     }
 
     public void PlayUnGrabAnimation()
     {
-        Animator.SetTrigger("UnGrab");
+        handAnimator.SetTrigger(UnGrab);
     }
 
 

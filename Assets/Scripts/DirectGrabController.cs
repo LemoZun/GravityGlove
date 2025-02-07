@@ -12,16 +12,15 @@ public class DirectGrabController : MonoBehaviour
     {
         grabableObject = GetComponent<XRGrabInteractable>();
     }
-    public void TrunOnTrack(SelectEnterEventArgs args)
+    public void TurnOnTrack(SelectEnterEventArgs args)
     {
-        if(args.interactor is XRDirectInteractor)
-        {
-            grabableObject.trackPosition = true;
-            grabableObject.trackRotation = true;
-        }
+        if (args.interactor is not XRDirectInteractor) 
+            return;
+        grabableObject.trackPosition = true;
+        grabableObject.trackRotation = true;
     }
 
-    public void TrunOffTrack(SelectExitEventArgs args)
+    public void TurnOffTrack(SelectExitEventArgs args)
     {
         if (args.interactor is XRDirectInteractor)
         {

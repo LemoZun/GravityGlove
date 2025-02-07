@@ -6,9 +6,9 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class FlashLightController : MonoBehaviour
 {
-    [SerializeField] GameObject pointLight;
-    [SerializeField] InputActionReference primaryButton;
-    private Light light;
+    [SerializeField] private GameObject pointLight;
+    [SerializeField] private InputActionReference primaryButton;
+    private Light flash;
     private bool isFlashLightOn = true;
 
     private void OnEnable()
@@ -23,8 +23,8 @@ public class FlashLightController : MonoBehaviour
 
     private void Start()
     {
-        light = pointLight.GetComponent<Light>();
-        light.enabled = isFlashLightOn;
+        flash = pointLight.GetComponent<Light>();
+        flash.enabled = isFlashLightOn;
     }
     private void Update()
     {
@@ -37,6 +37,6 @@ public class FlashLightController : MonoBehaviour
     private void ToggleFlashLight()
     {
         isFlashLightOn = !isFlashLightOn;
-        light.enabled = isFlashLightOn;
+        flash.enabled = isFlashLightOn;
     }
 }
