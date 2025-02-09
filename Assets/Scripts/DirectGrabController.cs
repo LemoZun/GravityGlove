@@ -1,31 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class DirectGrabController : MonoBehaviour
 {
     //private XRDirectInteractor interactor;
-    [SerializeField] XRGrabInteractable grabableObject;
+    [FormerlySerializedAs("grabableObject")] [SerializeField] XRGrabInteractable grabbableObject;
 
     private void Start()
     {
-        grabableObject = GetComponent<XRGrabInteractable>();
+        grabbableObject = GetComponent<XRGrabInteractable>();
     }
     public void TurnOnTrack(SelectEnterEventArgs args)
     {
         if (args.interactor is not XRDirectInteractor) 
             return;
-        grabableObject.trackPosition = true;
-        grabableObject.trackRotation = true;
+        grabbableObject.trackPosition = true;
+        grabbableObject.trackRotation = true;
     }
 
     public void TurnOffTrack(SelectExitEventArgs args)
     {
-        if (args.interactor is XRDirectInteractor)
-        {
-            grabableObject.trackPosition = false;
-            grabableObject.trackRotation = false;
-        }
+        if (args.interactor is not XRDirectInteractor) 
+            return;
+        grabbableObject.trackPosition = false;
+        grabbableObject.trackRotation = false;
     }
 }

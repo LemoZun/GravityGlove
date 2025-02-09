@@ -43,20 +43,17 @@ public class GravityGloveController : MonoBehaviour
                 return null;
             }
 
-            if (customAttachPoint == null)
-            {
-                customAttachPoint = controller.model.Find("AttachPoint");
+            if (customAttachPoint != null)
+                return customAttachPoint;
+            customAttachPoint = controller.model.Find("AttachPoint");
 
-                if (customAttachPoint != null)
-                {
-                    directInteractor.attachTransform = customAttachPoint;
-                    return directInteractor.attachTransform;
-                }
-                else
-                {
-                    Debug.Log("customAttachPoint가 null");
-                }
+            if (customAttachPoint != null)
+            {
+                directInteractor.attachTransform = customAttachPoint;
+                return directInteractor.attachTransform;
             }
+            
+            Debug.Log("customAttachPoint가 null");
             return customAttachPoint;
         }
     }
@@ -116,7 +113,6 @@ public class GravityGloveController : MonoBehaviour
 
     public void SelectStarted(SelectEnterEventArgs args)
     {
-        Debug.Log("선택 시작");
         PlaySelectAnimation();
         selectedObject = args.interactableObject as XRGrabInteractable;
         if (selectedObject == null)
@@ -130,7 +126,7 @@ public class GravityGloveController : MonoBehaviour
             Debug.Log("오브젝트의 리지드바디 없음");
         isSelecting = true;
         originalZAngle = controller.transform.localEulerAngles.z;
-        StartChekingFlickRoutine();
+        StartCheckingFlickRoutine();
     }
 
     public void SelectEnded()
@@ -143,16 +139,16 @@ public class GravityGloveController : MonoBehaviour
 
         isSelecting = false;
         isPulled = false;
-        StopChekingFlickRoutine();
+        StopCheckingFlickRoutine();
 
     }
 
-    private void StartChekingFlickRoutine()
+    private void StartCheckingFlickRoutine()
     {
         checkingFlickRoutine ??= StartCoroutine(CheckingFlickRoutine());
     }
 
-    private void StopChekingFlickRoutine()
+    private void StopCheckingFlickRoutine()
     {
         if (checkingFlickRoutine == null) 
             return;
@@ -168,27 +164,21 @@ public class GravityGloveController : MonoBehaviour
 
         while (isSelecting && !isPulled)
         {
-            //float curZAngle = controller.transform.rotation.eulerAngles.z;
-            var curZAngle = controller.transform.localEulerAngles.z;
-            var deltaAngle = Mathf.DeltaAngle(originalZAngle, curZAngle);
-            var angularVelocity = deltaAngle / unitSecond;
+            float curZAngle = controller.transform.localEulerAngles.z;
+            float deltaAngle = Mathf.DeltaAngle(originalZAngle, curZAngle);
+            float angularVelocity = deltaAngle / unitSecond;
 
             if (angularVelocity >= thresholdAngleVelocity)
             {
                 //당겨짐 수행
                 PullObject();
-                StopChekingFlickRoutine();
+                StopCheckingFlickRoutine();
                 yield break;
-
             }
-
             Debug.Log("각속도 부족");
-            // 지나치게 빨리 originalAngle을 업데이트해서 안당겨짐
             originalZAngle = curZAngle;
-
             yield return delay;
         }
-        
     }
 
     private void PullObject()
@@ -197,25 +187,14 @@ public class GravityGloveController : MonoBehaviour
         PlayPullingSound();
         if (selectedObject != null && !isPulled)
         {
-
-            //Debug.Log(selectedObject.name);
-
             selectedObjectRb.velocity = Vector3.zero;
             Vector3 pullDirection = (transform.position - selectedObject.transform.position).normalized;
-            
-            // pullDirection.y = Mathf.Max(pullDirection.y, 0.1f); // 포물선으로 날아오게 하려했는데 이상하게 날아감
-            //Debug.Log(pullDirection.y);
-            // 눈앞까지 오도록 + 포물선을 그리며 날아오도록 조정해 줄 필요가 있음
-
-            selectedObjectRb.AddForce(pullDirection * pullForce, ForceMode.Impulse); //VelocityChange 해봄
-            
+            selectedObjectRb.AddForce(pullDirection * pullForce, ForceMode.Impulse);
             //당겨지는 도중 또 당겨지면 안됨
             isPulled = true;
         }
-        else
-        {
-            Debug.Log("오브젝트 없음");
-        }
+        Debug.Log("오브젝트 없음");
+        
     }
 
     private void PlayPullingSound()
