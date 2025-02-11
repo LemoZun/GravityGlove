@@ -63,8 +63,11 @@ public class GravityGloveController : MonoBehaviour
     private bool isSelecting = false;
     private bool isPulled = false;
     [SerializeField] private float pullForce;
-    private float originalXAngle; // 컨트롤러의 회전값을 받아와야함
-    [SerializeField] private float thresholdAngleVelocity; // 임시값
+    //private float originalXAngle; 
+    
+    private float originalUpY;
+    private float originalUpAngleDiff; 
+    [SerializeField] private float thresholdAngleVelocity;
     private Coroutine checkingFlickRoutine;
 
 
@@ -125,7 +128,11 @@ public class GravityGloveController : MonoBehaviour
         if (selectedObjectRb == null)
             Debug.Log("오브젝트의 리지드바디 없음");
         isSelecting = true;
-        originalXAngle = controller.transform.localEulerAngles.z;
+        //originalXAngle = controller.transform.localEulerAngles.x;
+        
+        originalUpAngleDiff = Vector3.Angle(controller.transform.up, Vector3.up);
+        originalUpY = controller.transform.up.y;
+        
         StartCheckingFlickRoutine();
     }
 
@@ -164,11 +171,42 @@ public class GravityGloveController : MonoBehaviour
 
         while (isSelecting && !isPulled)
         {
-            float curZAngle = controller.transform.localEulerAngles.z;
-            float deltaAngle = Mathf.DeltaAngle(originalXAngle, curZAngle);
-            if (deltaAngle < 0)
+            float currentUpAngleDiff = Vector3.Angle(controller.transform.up, Vector3.up);
+            float currentUpY = controller.transform.up.y;
+            float deltaAngle = originalUpAngleDiff - currentUpAngleDiff;
+            float deltaY = currentUpY - originalUpY;
+            
+            if (deltaY > 0 && deltaAngle > 0)
             {
-                originalXAngle = curZAngle;
+                float angularVelocity = deltaAngle / unitSecond;
+                if (angularVelocity >= thresholdAngleVelocity)
+                {
+                    // 임계치를 넘으면 당겨짐 수행
+                    PullObject();
+                    StopCheckingFlickRoutine();
+                    yield break;
+                }
+            }
+            
+            originalUpAngleDiff = currentUpAngleDiff;
+            originalUpY = currentUpY;
+            yield return delay;
+        }
+    }
+    
+    /*
+     *private IEnumerator CheckingFlickRoutine()
+    {
+        WaitForSeconds delay = new WaitForSeconds(0.1f);
+        float unitSecond = 0.5f;
+
+        while (isSelecting && !isPulled)
+        {
+            float curXAngle = controller.transform.localEulerAngles.x;
+            float deltaAngle = Mathf.DeltaAngle(originalXAngle, curXAngle);
+            if (deltaAngle <= 0)
+            {
+                originalXAngle = curXAngle;
                 yield return delay;
                 continue;
             }
@@ -183,10 +221,12 @@ public class GravityGloveController : MonoBehaviour
                 yield break;
             }
             Debug.Log("각속도 부족");
-            originalXAngle = curZAngle;
+            originalXAngle = curXAngle;
             yield return delay;
         }
     }
+     * 
+     */
 
     private void PullObject()
     {
